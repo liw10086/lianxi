@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f7fb">
+  <title>互联网+技能应用赛 · 模拟题库</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17233b;
+      --muted: #71809a;
+      --line: #e5eaf2;
+      --blue: #356cf6;
+      --blue-soft: #edf3ff;
+      --green: #15966a;
+      --red: #d84a55;
+      --surface: #fff;
+      --bg: #f4f7fb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button { font: inherit; }
+    .app { width: min(100% - 24px, 680px); margin: 0 auto; padding: 18px 0 36px; }
+    header { padding: 10px 4px 18px; }
+    .eyebrow { color: var(--blue); font-size: 13px; font-weight: 750; letter-spacing: .04em; }
+    h1 { margin: 3px 0 4px; font-size: clamp(22px, 6vw, 29px); line-height: 1.3; }
+    .subtitle { margin: 0; color: var(--muted); font-size: 14px; }
+    .toolbar, .stats, .question-card, .result-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 5px 22px rgba(27, 49, 88, .045);
+    }
+    .toolbar { padding: 14px; margin-bottom: 12px; }
+    .toolbar-row { display: flex; gap: 8px; align-items: center; }
+    .toolbar-row + .toolbar-row { margin-top: 10px; }
+    .select-wrap { flex: 1; min-width: 0; }
+    select, .soft-button, .primary-button, .nav-button {
+      min-height: 44px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      padding: 9px 12px;
+    }
+    select { width: 100%; }
+    .soft-button { color: #35527c; font-weight: 650; white-space: nowrap; }
+    .primary-button { width: 100%; background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 750; }
+    .primary-button:disabled { opacity: .48; }
+    .stats { padding: 12px 14px; margin-bottom: 12px; }
+    .stats-top { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--muted); }
+    .stats-top strong { color: var(--ink); }
+    .progress { height: 7px; background: #edf0f6; overflow: hidden; border-radius: 8px; margin-top: 9px; }
+    .progress > span { display: block; height: 100%; width: 0; background: var(--blue); border-radius: inherit; transition: width .2s ease; }
+    .question-card { padding: 19px 16px 16px; }
+    .badges { display: flex; align-items: center; gap: 7px; margin-bottom: 13px; }
+    .badge { background: var(--blue-soft); color: #315dc7; border-radius: 999px; padding: 4px 9px; font-size: 12px; font-weight: 700; }
+    .badge.muted { background: #f0f2f6; color: #68758a; }
+    .prompt { margin: 0 0 15px; font-size: 18px; font-weight: 720; line-height: 1.55; }
+    .hint { margin: -7px 0 13px; color: var(--muted); font-size: 13px; }
+    .options { display: grid; gap: 9px; }
+    .option {
+      display: flex; align-items: flex-start; gap: 11px; min-height: 48px;
+      padding: 11px 12px; border: 1.5px solid var(--line); border-radius: 13px;
+      background: #fff; cursor: pointer; transition: border-color .15s, background .15s;
+    }
+    .option:has(input:checked) { border-color: var(--blue); background: var(--blue-soft); }
+    .option input { flex: 0 0 auto; width: 19px; height: 19px; margin: 2px 0 0; accent-color: var(--blue); }
+    .option.correct { border-color: var(--green); background: #ecfaf4; }
+    .option.incorrect { border-color: var(--red); background: #fff0f1; }
+    .option.disabled { cursor: default; }
+    .option-text { flex: 1; }
+    .feedback { margin-top: 14px; padding: 12px 13px; border-radius: 12px; font-size: 14px; }
+    .feedback.good { background: #ecfaf4; color: #126c4d; }
+    .feedback.bad { background: #fff0f1; color: #a93640; }
+    .feedback.neutral { background: #f1f5fb; color: #405573; }
+    .answer-line { margin-top: 5px; font-weight: 700; }
+    .actions { display: flex; gap: 9px; margin-top: 15px; }
+    .actions .primary-button { flex: 1; }
+    .nav-button { min-width: 84px; font-weight: 650; }
+    .nav-button:disabled { color: #aab3c1; background: #f7f8fa; }
+    .footer-note { color: var(--muted); font-size: 12px; text-align: center; padding: 15px 8px 0; }
+    .result-card { padding: 22px 18px; text-align: center; }
+    .result-score { font-size: 42px; line-height: 1.2; color: var(--blue); font-weight: 800; margin: 5px 0; }
+    .result-card p { color: var(--muted); margin: 7px 0 17px; }
+    .result-card .primary-button { margin-top: 9px; }
+    .empty { color: var(--muted); text-align: center; padding: 24px 12px; }
+    @media (min-width: 560px) {
+      .app { padding-top: 28px; }
+      .question-card { padding: 24px; }
+      .toolbar, .stats { padding: 16px 18px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div class="eyebrow">手机答题 · 随时练习</div>
+      <h1>互联网+技能应用赛</h1>
+      <p class="subtitle">40 道原创模拟题 · 覆盖互联网基础、产品运营、政务服务与数字技术</p>
+    </header>
+
+    <section class="toolbar" aria-label="答题设置">
+      <div class="toolbar-row">
+        <label class="select-wrap">
+          <select id="mode" aria-label="答题模式">
+            <option value="practice">练习模式 · 答后看解析</option>
+            <option value="exam">模拟考试 · 交卷后看成绩</option>
+          </select>
+        </label>
+        <button class="soft-button" id="shuffle" type="button">随机练习</button>
+      </div>
+      <div class="toolbar-row">
+        <label class="select-wrap">
+          <select id="scope" aria-label="题目范围">
+            <option value="all">全部题目（40）</option>
+            <option value="wrong">错题复习</option>
+          </select>
+        </label>
+        <button class="soft-button" id="restart" type="button">重新开始</button>
+      </div>
+    </section>
+
+    <section class="stats" id="stats">
+      <div class="stats-top">
+        <span id="counter">第 1 / 40 题</span>
+        <span id="score">已答 <strong>0</strong> 题</span>
+      </div>
+      <div class="progress" aria-label="答题进度"><span id="progress"></span></div>
+    </section>
+
+    <section id="stage" aria-live="polite"></section>
+    <p class="footer-note">题目为依据往届题库考查范围编写的模拟题，非比赛官方原题。</p>
+  </main>
+  <script>
+    const questions = [
+      { type:"判断题", text:"MVP 的主要作用是以较少资源验证产品的核心假设。", options:["正确","错误"], answer:[0], explain:"MVP 用于以较小成本验证核心价值或关键假设。" },
+      { type:"判断题", text:"SaaS 通常通过互联网向用户提供软件服务，用户一般不需要自行维护底层服务器。", options:["正确","错误"], answer:[0], explain:"SaaS 面向用户提供软件服务，底层基础设施通常由服务提供方维护。" },
+      { type:"判断题", text:"网页中关键词出现得越多，搜索排名就一定越靠前。", options:["正确","错误"], answer:[1], explain:"关键词堆砌不保证排名提升，还可能损害内容质量和用户体验。" },
+      { type:"判断题", text:"收集个人信息时，应明确告知处理目的，并遵循最小必要原则。", options:["正确","错误"], answer:[0], explain:"目的明确、最小必要是个人信息处理的重要要求。" },
+      { type:"判断题", text:"算法推荐可能提升用户内容匹配度，但也可能使用户接触的信息趋于同质化。", options:["正确","错误"], answer:[0], explain:"推荐系统可能带来信息茧房或内容同质化等负面效应。" },
+      { type:"单选题", text:"AARRR 用户增长模型中的第一个“A”通常指什么？", options:["用户获取（Acquisition）","用户激活（Activation）","用户留存（Retention）","用户收入（Revenue）"], answer:[0], explain:"AARRR 的第一个阶段是用户获取。" },
+      { type:"单选题", text:"以下哪一项不属于商业模式画布的九个模块？", options:["客户细分","核心资源","竞争对手","收入来源"], answer:[2], explain:"竞争对手不是商业模式画布的九个模块之一。" },
+      { type:"单选题", text:"团队希望评估用户在首次注册后，是否真正体验了产品的核心功能。以下哪项指标最适合？", options:["激活率","安装包大小","公司融资金额","页面颜色数量"], answer:[0], explain:"激活率关注新用户是否完成关键体验或关键行为。" },
+      { type:"单选题", text:"评估产品用户留存表现时，以下哪种做法更合理？", options:["只看累计下载量","观察用户在不同时间周期内是否持续回来使用","只看应用商店评分","只看产品上线天数"], answer:[1], explain:"留存要看用户经过一段时间后是否继续回来使用。" },
+      { type:"单选题", text:"为实现跨地区政务服务协同，最需要解决的问题之一是：", options:["各部门统一使用同一款手机","数据共享、身份互认和业务协同","所有事项都改为线下办理","政务网站使用相同背景颜色"], answer:[1], explain:"跨区域政务协同依赖数据共享、身份互认和业务协作。" },
+      { type:"单选题", text:"云计算中的 IaaS 主要向用户提供哪类服务？", options:["云端应用软件","计算、存储和网络等基础资源","只提供在线培训课程","只提供数字营销服务"], answer:[1], explain:"IaaS 提供计算、存储、网络等基础设施资源。" },
+      { type:"单选题", text:"在直播电商中，若要衡量进入直播间的用户最终下单的比例，最相关的是：", options:["下单转化率","页面浏览量","账号关注总数","视频发布数量"], answer:[0], explain:"下单转化率衡量用户从访问到下单的转化情况。" },
+      { type:"单选题", text:"物联网设备数量较多、数据需要低时延处理时，将部分计算任务放到靠近设备的位置，通常称为：", options:["边缘计算","电子邮件营销","关键词优化","股权众筹"], answer:[0], explain:"边缘计算将部分处理放到靠近数据产生位置的设备或节点。" },
+      { type:"单选题", text:"网站优化时，选择关键词应优先考虑：", options:["关键词是否足够长","用户搜索意图与页面内容是否匹配","关键词是否全部写进页脚","关键词是否只在图片中出现"], answer:[1], explain:"关键词应与用户意图和页面提供的信息相匹配。" },
+      { type:"单选题", text:"为降低用户账号被盗风险，以下哪种措施更有效？", options:["多个网站使用同一个简单密码","关闭登录异常提醒","使用多因素验证并设置独立强密码","将密码保存在公开共享文档中"], answer:[2], explain:"独立强密码配合多因素验证能提升账号安全性。" },
+      { type:"多选题", text:"以下哪些做法符合个人信息保护中的常见合规原则？", options:["明确告知收集个人信息的目的","只收集实现服务所必需的信息","未经授权，将用户信息提供给合作方","提供便捷的撤回授权或注销渠道"], answer:[0,1,3], explain:"应告知目的、限制收集范围，并提供管理授权的渠道；未经授权向合作方提供信息不合适。" },
+      { type:"多选题", text:"全渠道营销可能整合哪些触达方式？", options:["电商平台","线下门店","社交媒体","客服电话或短信"], answer:[0,1,2,3], explain:"全渠道营销可整合线上、线下及直接沟通渠道。" },
+      { type:"多选题", text:"以下哪些属于云计算常见优势？", options:["可按业务需求弹性扩展资源","可降低部分前期硬件投入","使用云服务后，企业不再需要关注任何安全问题","可按需使用计算、存储等资源"], answer:[0,1,3], explain:"云服务有弹性、按需使用等优势，但使用者仍需履行相应安全管理责任。" },
+      { type:"多选题", text:"以下哪些说法符合监督学习的特点？", options:["训练数据通常包含标签","可用于分类任务","可用于回归任务","主要目标是从无标签数据中自动聚类"], answer:[0,1,2], explain:"监督学习使用带标签数据，可用于分类和回归；无标签聚类通常属于无监督学习。" },
+      { type:"多选题", text:"产品团队在安排下一轮迭代时，哪些做法有助于提升决策质量？", options:["结合用户反馈和行为数据","评估需求影响范围与实现成本","不经验证，优先开发负责人最喜欢的功能","上线后持续观察指标并根据结果调整"], answer:[0,1,3], explain:"需求决策应结合证据、影响与成本，并通过上线后的数据持续验证。" },
+      { type:"判断题", text:"电子政务建设不仅涉及技术，也涉及政府业务流程和管理方式的调整。", options:["正确","错误"], answer:[0], explain:"电子政务建设常常需要同步调整业务流程和管理方式。" },
+      { type:"判断题", text:"用户体验设计只关注界面是否美观，不需要考虑操作效率。", options:["正确","错误"], answer:[1], explain:"用户体验还包括易用性、操作效率、反馈和可访问性等方面。" },
+      { type:"判断题", text:"电子商务平台积累的交易数据，可以为互联网金融服务提供数据基础。", options:["正确","错误"], answer:[0], explain:"交易数据等信息可以支撑风险识别和金融服务，使用时仍需遵守相关规则。" },
+      { type:"判断题", text:"物联网的应用目标之一，是借助设备互联与数据分析提升管理效率。", options:["正确","错误"], answer:[0], explain:"设备互联和数据分析是物联网常见应用基础。" },
+      { type:"判断题", text:"病毒式营销能否成功，只取决于内容是否有趣，与传播路径设计无关。", options:["正确","错误"], answer:[1], explain:"传播内容和传播机制都重要，分享动机、触达路径也会影响效果。" },
+      { type:"单选题", text:"按网络协议的基本概念，协议通常由哪三部分组成？", options:["语法、语义、时序","页面、链接、图片","用户、设备、服务器","输入、输出、存储"], answer:[0], explain:"网络协议的三要素通常概括为语法、语义和时序。" },
+      { type:"单选题", text:"网站设计中，为了让相似功能和视觉元素保持统一，最直接相关的原则是：", options:["一致性","随机性","复杂性","隐蔽性"], answer:[0], explain:"一致性有助于形成稳定、易理解的交互体验。" },
+      { type:"单选题", text:"创业团队在正式大规模推广前，先向少量用户开放新功能并观察反馈，这种做法通常称为：", options:["灰度测试","股权融资","公开招标","搜索引擎营销"], answer:[0], explain:"灰度测试是面向部分用户逐步开放功能并收集反馈。" },
+      { type:"单选题", text:"互联网金融反欺诈中，判断用户是否存在多平台借贷情况，通常会关注哪类信息？", options:["征信相关数据","网页配色数据","视频分辨率数据","物流包装数据"], answer:[0], explain:"多头借贷识别通常会涉及征信或相关借贷信息。" },
+      { type:"单选题", text:"智慧园区的安防系统通常不包括哪项？", options:["视频监控","门禁管理","周界报警","在线课程推荐"], answer:[3], explain:"在线课程推荐不是园区安防子系统。" },
+      { type:"单选题", text:"数字城市建设中，电子政务的主要价值之一是：", options:["提升政务服务与管理的信息化水平","取代所有线下公共设施","让所有政府数据无条件公开","只用于城市宣传和广告投放"], answer:[0], explain:"电子政务可提升政务服务和管理的信息化水平。" },
+      { type:"单选题", text:"跨境电商采用海外仓，通常有助于：", options:["缩短商品送达时间","完全免除进口规则","取消所有库存管理","保证商品销量增长"], answer:[0], explain:"海外仓可让商品更靠近目标市场，通常有助于缩短配送时效。" },
+      { type:"单选题", text:"众筹项目中的投资人以资金换取企业股份，这种融资方式属于：", options:["股权众筹","银行存款","供应链采购","搜索广告投放"], answer:[0], explain:"投资人取得股份对应股权众筹。" },
+      { type:"单选题", text:"用户分享活动后，邀请新用户完成注册或购买。评估这种传播效果时，较直接的指标是：", options:["邀请成功数与分享用户数的比值","网站服务器的机架数量","产品包装尺寸","团队成员的通勤时间"], answer:[0], explain:"该比值可用于观察分享带来的邀请转化情况。" },
+      { type:"单选题", text:"通过短视频平台推广商品时，以下哪项做法更有助于优化投放效果？", options:["根据目标用户和内容表现持续调整素材","所有用户都展示完全相同的广告","只关注视频封面，不观察转化数据","将广告内容与商品无关，以提高点击率"], answer:[0], explain:"根据目标用户和实际表现持续调整，比只看点击或封面更有效。" },
+      { type:"多选题", text:"以下哪些属于电子化公共服务可能带来的变化？", options:["减少群众办理事项的时间成本","提高部分服务流程的规范性","让所有事项都不再需要人工审核","方便公众在线查询或办理部分事项"], answer:[0,1,3], explain:"电子化服务可降低部分办事成本、规范流程并支持在线办理，但不意味着免除人工审核。" },
+      { type:"多选题", text:"在制定互联网产品需求优先级时，哪些因素值得考虑？", options:["用户影响范围","业务价值","实现成本与风险","需求提出者的职位高低"], answer:[0,1,2], explain:"用户影响、业务价值、成本和风险都是常见的优先级考量。" },
+      { type:"多选题", text:"下列哪些属于互联网营销的常见方式？", options:["会员制营销","许可邮件营销","内容或社交传播","搜索引擎优化"], answer:[0,1,2,3], explain:"这些都属于常见的互联网营销方式。" },
+      { type:"多选题", text:"“互联网+文旅”可能采用哪些方式改善旅游体验或推广效果？", options:["用 VR 或 AR 提供沉浸式体验","通过短视频介绍目的地","在线定制个性化旅游路线","禁止游客使用线上信息服务"], answer:[0,1,2], explain:"VR/AR、短视频推广和在线定制都可用于文旅场景。" },
+      { type:"多选题", text:"以下哪些措施有助于保护互联网平台中的用户信息？", options:["按业务需要限制数据访问权限","对敏感数据采取适当的安全保护措施","未经授权就将用户数据用于其他目的","明确告知用户数据处理规则"], answer:[0,1,3], explain:"权限控制、安全保护和规则告知有助于保护用户信息；未经授权改变用途不合适。" }
+    ];
+
+    const $ = (id) => document.getElementById(id);
+    const stage = $("stage");
+    const savedKey = "internet-plus-quiz-v1";
+    let mode = "practice";
+    let ids = questions.map((_, i) => i);
+    let index = 0;
+    let selected = [];
+    let answers = {};
+    let submitted = false;
+    let finished = false;
+
+    function save() {
+      try {
+        localStorage.setItem(savedKey, JSON.stringify({ mode, ids, index, answers, finished }));
+      } catch (_) {}
+    }
+    function load() {
+      try {
+        const data = JSON.parse(localStorage.getItem(savedKey) || "null");
+        if (!data || !Array.isArray(data.ids) || !data.ids.length) return;
+        if (!data.ids.every(id => Number.isInteger(id) && questions[id])) return;
+        mode = data.mode === "exam" ? "exam" : "practice";
+        ids = data.ids;
+        index = Math.min(Math.max(0, data.index | 0), ids.length - 1);
+        answers = data.answers && typeof data.answers === "object" ? data.answers : {};
+        finished = Boolean(data.finished);
+      } catch (_) {}
+    }
+    function current() { return questions[ids[index]]; }
+    function answerKey(q) { return [...q.answer].sort((a,b) => a-b).join(","); }
+    function answerText(q) { return q.answer.map(i => String.fromCharCode(65 + i)).join("、"); }
+    function isCorrect(q, chosen) { return [...chosen].sort((a,b) => a-b).join(",") === answerKey(q); }
+    function countAnswered() { return Object.keys(answers).filter(k => ids.includes(Number(k))).length; }
+    function scoreCount() {
+      return ids.reduce((n, id) => {
+        const saved = answers[id];
+        return n + (saved && isCorrect(questions[id], saved.choice) ? 1 : 0);
+      }, 0);
+    }
+    function updateStats() {
+      $("counter").textContent = `第 ${Math.min(index + 1, ids.length)} / ${ids.length} 题`;
+      $("score").innerHTML = `已答 <strong>${countAnswered()}</strong> 题`;
+      $("progress").style.width = `${ids.length ? countAnswered() / ids.length * 100 : 0}%`;
+      $("mode").value = mode;
+      $("scope").value = ids.length < questions.length && $("scope").value === "wrong" ? "wrong" : "all";
+    }
+    function render() {
+      updateStats();
+      if (!ids.length) {
+        stage.innerHTML = '<div class="question-card empty">目前没有错题，继续保持！<div style="margin-top:14px"><button class="primary-button" id="backAll">返回全部题目</button></div></div>';
+        $("backAll").onclick = () => startAll(false);
+        return;
+      }
+      if (mode === "exam" && finished) { renderResult(); return; }
+      const q = current();
+      const prior = answers[ids[index]];
+      selected = prior ? [...prior.choice] : [];
+      submitted = Boolean(prior && mode === "practice");
+      const multi = q.answer.length > 1 && q.type !== "判断题";
+      const inputType = multi ? "checkbox" : "radio";
+      const showFeedback = mode === "practice" && submitted;
+      const options = q.options.map((opt, i) => {
+        let cls = "option";
+        if (showFeedback) {
+          cls += " disabled";
+          if (q.answer.includes(i)) cls += " correct";
+          else if (selected.includes(i)) cls += " incorrect";
+        }
+        return `<label class="${cls}"><input type="${inputType}" name="answer" value="${i}" ${selected.includes(i) ? "checked" : ""} ${showFeedback ? "disabled" : ""}><span class="option-text"><strong>${String.fromCharCode(65+i)}.</strong> ${opt}</span></label>`;
+      }).join("");
+      let feedback = "";
+      if (showFeedback) {
+        const correct = isCorrect(q, selected);
+        feedback = `<div class="feedback ${correct ? "good" : "bad"}"><strong>${correct ? "回答正确" : "回答错误"}</strong><div class="answer-line">正确答案：${answerText(q)}</div><div>${q.explain}</div></div>`;
+      }
+      stage.innerHTML = `<article class="question-card">
+        <div class="badges"><span class="badge">${q.type}</span><span class="badge muted">${multi ? "可多选" : "单选"}</span></div>
+        <h2 class="prompt">${q.text}</h2>
+        ${multi ? '<p class="hint">请选择所有正确选项，漏选或多选均计为答错。</p>' : ""}
+        <div class="options">${options}</div>
+        ${feedback}
+        <div class="actions">
+          <button class="nav-button" id="prev" ${index === 0 ? "disabled" : ""}>上一题</button>
+          <button class="primary-button" id="submit">${mode === "exam" ? "记录答案" : showFeedback ? (index === ids.length - 1 ? "完成练习" : "下一题") : "确认答案"}</button>
+          <button class="nav-button" id="next" ${index === ids.length - 1 ? "disabled" : ""}>下一题</button>
+        </div>
+      </article>`;
+      stage.querySelectorAll('input[name="answer"]').forEach(input => {
+        input.addEventListener("change", () => {
+          const value = Number(input.value);
+          if (inputType === "radio") selected = [value];
+          else selected = input.checked ? [...new Set([...selected, value])] : selected.filter(v => v !== value);
+        });
+      });
+      $("prev").onclick = () => move(-1);
+      $("next").onclick = () => move(1);
+      $("submit").onclick = submitAnswer;
+    }
+    function move(delta) {
+      if (delta > 0 && mode === "practice" && !submitted) return;
+      index = Math.max(0, Math.min(ids.length - 1, index + delta));
+      save(); render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    function submitAnswer() {
+      if (mode === "practice" && submitted) {
+        if (index < ids.length - 1) move(1);
+        else renderResult();
+        return;
+      }
+      if (!selected.length) {
+        alert("请先选择答案。");
+        return;
+      }
+      answers[ids[index]] = { choice: [...selected] };
+      if (mode === "practice") submitted = true;
+      else if (index < ids.length - 1) index++;
+      else {
+        finished = true;
+        save(); render();
+        return;
+      }
+      save(); render();
+    }
+    function renderResult() {
+      updateStats();
+      const correct = scoreCount();
+      const wrongIds = ids.filter(id => answers[id] && !isCorrect(questions[id], answers[id].choice));
+      const unanswered = ids.length - countAnswered();
+      stage.innerHTML = `<section class="result-card">
+        <div class="badge">${mode === "exam" ? "模拟考试完成" : "练习完成"}</div>
+        <div class="result-score">${Math.round(correct / ids.length * 100)} 分</div>
+        <p>答对 ${correct} / ${ids.length} 题${unanswered ? ` · 未答 ${unanswered} 题` : ""}</p>
+        <button class="primary-button" id="reviewWrong">${wrongIds.length ? `复习错题（${wrongIds.length}）` : "查看全部题目"}</button>
+        <button class="soft-button" id="retry" style="width:100%;margin-top:9px">再做一遍</button>
+      </section>`;
+      $("reviewWrong").onclick = () => {
+        if (wrongIds.length) { ids = wrongIds; index = 0; mode = "practice"; finished = false; $("scope").value = "wrong"; }
+        else { mode = "practice"; index = 0; finished = false; }
+        save(); render();
+      };
+      $("retry").onclick = () => {
+        answers = {}; index = 0; finished = false; ids = questions.map((_, i) => i);
+        $("scope").value = "all"; save(); render();
+      };
+    }
+    function startAll(shuffle) {
+      ids = questions.map((_, i) => i);
+      if (shuffle) ids.sort(() => Math.random() - .5);
+      answers = {}; index = 0; finished = false; submitted = false;
+      $("scope").value = "all";
+      save(); render();
+    }
+    $("mode").addEventListener("change", e => {
+      mode = e.target.value; finished = false; submitted = false; save(); render();
+    });
+    $("scope").addEventListener("change", e => {
+      if (e.target.value === "wrong") {
+        const wrong = ids.filter(id => answers[id] && !isCorrect(questions[id], answers[id].choice));
+        if (!wrong.length) {
+          alert("当前还没有错题。先完成练习或模拟考试吧。");
+          e.target.value = "all";
+          return;
+        }
+        ids = wrong; index = 0; mode = "practice"; finished = false;
+      } else {
+        ids = questions.map((_, i) => i); index = 0; mode = "practice"; finished = false;
+      }
+      save(); render();
+    });
+    $("shuffle").onclick = () => startAll(true);
+    $("restart").onclick = () => {
+      if (confirm("重新开始会清除本轮答题记录，确定继续吗？")) startAll(false);
+    };
+    load();
+    render();
+  </script>
+</body>
+</html>
